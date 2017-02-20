@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>AlbiachColorsApp</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="jquery.mobile-1.3.2.min.css" />
+		<script src="jquery-1.8.3.min.js"></script>
+		<script src="jquery.mobile-1.3.2.min.js"></script>
+		<script src="cordova.js"></script>
+		<!-- Els meus estils -->
+		<link rel="stylesheet" type="text/css" href="./estils/estil.css">
+		<!-- El meu script -->
+
+		<script>
+			var missatgeEmail="0"; // S'actualitza al fer mostrarPresupost
+
+			// Funció per formatejar amb separadors de milers
+			function milFormat(numero){ 
+		        var resultado = "";
+		        // Ponemos un punto cada 3 caracteres
+		        for (var j, i = numero.length - 1, j = 0; i >= 0; i--, j++) 
+		            resultado = numero.charAt(i) + ((j > 0) && (j % 3 == 0)? ".": "") + resultado; 
+		        return resultado;
+    		}
+
+    		// Funció per calcular el presupost
+			function mostraPresupost(){
+				var pSalon, tSalon;
+				var pCocina, tCocina;
+				var pH_p, tH_p;
+				var pH_s, tH_s;
+				var pPasillo, tPasillo;
+				var pEscalera, tEscalera;
+				var pAseo, tAseo;
+				var tTotal;
+				var salon=$('#salon').val();
+				var cocina=$('#cocina').val();
+				var hab_p=$('#hab_p').val();
+				var hab_s=$('#hab_s').val();
+				var pasillo=$('#pasillo').val();
+				var escalera=$('#escalera').val();
+				var aseo=$('#aseo').val();
+				var aux;
+
+				// Control i càlculs ...
+
+				// Saló **********
+				if(salon=="off"){
+					pSalon=0;
+					tSalon=0;
+				}	
+				else {
+					pSalon=1;
+					tSalon=pSalon*195;
+				}
+				
+				// Cuina **********
+				if(cocina=="off"){
+					pCocina=0;
+					tCocina=0;
+				}	
+				else {
+					pCocina=1;
+					tCocina=pCocina*59;
+				}
+				
+				// Habitació principal **********
+				pH_p=hab_p;
+				tH_p=pH_p*195;
+
+				// Habitació secundària **********
+				pH_s=hab_s;
+				tH_s=pH_s*135;
+
+				// Pasillo **********
+				pPasillo=pasillo;
+				tPasillo=pPasillo*105;
+
+				// Escalera **********
+				pEscalera=escalera;
+				tEscalera=pEscalera*105;
+
+				// Aseo **********
+				pAseo=aseo;
+				tAseo=pAseo*39;
+
+				tTotal=tSalon+tCocina+tH_p+tH_s+tPasillo+tEscalera+tAseo;
+
+				// Ajust dels valors a la vista de pressupost
+				$('#nSalon').text(pSalon);
+				$('#pSalon').text(tSalon+"€");
+
+				$('#nCocina').text(pCocina);
+				$('#pCocina').text(tCocina+"€");
+
+				$('#nHab_p').text(pH_p);
+				$('#pHab_p').text(tH_p+"€");
+
+				$('#nHab_s').text(pH_s);
+				$('#pHab_s').text(tH_s+"€");
+
+				$('#nPasillo').text(pPasillo);
+				$('#pPasillo').text(tPasillo+"€");
+
+				$('#nEscalera').text(pEscalera);
+				$('#pEscalera').text(tEscalera+"€");
+
+				$('#nAseo').text(pAseo);
+				$('#pAseo').text(tAseo+"€");
+
+				aux=tTotal.toString();
+				aux=milFormat(aux);
+				$('#pTotal').text(aux+"€");
+
+				// Crea cadena per enviar pressupost
+				missatgeEmail="Salón"+tSalon+"€"+"%0D%0A"
+				+ "Cocina%20"+tCocina+"€"+"%0D%0A"
+				+ "Habitación principal%20"+pH_p+"%20-"+tH_p+"€"+"%0D%0A"
+				+ "Habitación secundaria%20"+pH_s+"%20-"+tH_s+"€"+"%0D%0A"
+				+ "Pasillo%20"+pPasillo+"%20-"+tPasillo+"€"+"%0D%0A"
+				+ "Escalera%20"+pEscalera+"%20-"+tEscalera+"€"+"%0D%0A"
+				+ "Aseo%20"+pAseo+"%20-"+tAseo+"€"+"%0D%0A"
+				+ "Total presupuesto:%20"+aux+"€";
+
+				// Anem a la vista de pressupost
+				$.mobile.changePage( "#pag6", {});
+			}
+			
+			$(document).ready(function(){
+				// Si boto de anar enrere en la pàgina 1, aleshores, sortir, si no, anar enrere.
+				document.addEventListener("backbutton", function(e){
+				    if($.mobile.activePage.is('#pag1')){
+				        e.preventDefault();
+				        navigator.app.exitApp();
+				    }
+				    else {
+				        navigator.app.backHistory()
+				    }
+				}, false);
+
+				
+				// Enviar pressupost
+				$("#bEnviaPres").click(function(){
+					var data= new Date();
+					var link = "mailto:albiachcolors@gmail.com?"
+					+ "&subject= Presupuesto%20fecha:%20"+data.getDate()+"/"+(data.getMonth() +1)+"/"+data.getFullYear()
+					+ "&body=fecha:%20"+data.getDate()+"/"+(data.getMonth() +1)+"/"+data.getFullYear()+"%0D%0A"
+					+missatgeEmail;
+					window.location.href = link;
+				});
+
+				// Calcular i mostrar presupost
+				$("#bCalcular").click(function(){
+					mostraPresupost();
+				});
+
+				// Sortida de l'aplicació.
+				$("#powerOff").click(function(){
+					navigator.app.exitApp();
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div data-role="page" id="pag1" data-theme="a">
+			<div data-role="header">
+				<a id="powerOff" href="#" data-role="button" data-icon="delete">Salir</a>
+				<h1>AlbiachColors</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<ul data-role="listview">
+					<li><a href="#pag2" data-transition="flip">La empresa.</a></li>
+					<li><a href="#pag3" data-transition="none">Galería de proyectos.</a></li>
+					<li><a href="#pag4" data-transition="none">Calcula tu presupuesto.</a></li>
+					<li><a href="#pag5" data-transition="none">Contacta con nosotros.</a></li>
+				</ul>
+				<div class="logo">
+					<img class="logo_img" src="12.BMP">
+				</div>
+			</div>
+			<div data-role="footer">
+				
+			</div>
+		</div>
+		<div data-role="page" id="pag2" data-theme="b">
+			<div data-role="header">
+				<a href="#pag1" data-role="button" data-icon="back" data-theme="b" data-transition="flip">Volver</a>
+				<h3>Empresa.</h3>
+				
+			</div>
+			<div data-role="content" data-theme="b">
+				<p>Albiach Colors se presenta como una empresa que desde su creación en el año 2002
+				vive dedicada a la realización de trabajos de pintura mural y de alta decoración.</p>
+				<p>Gracias a la confianza que nos han demostrado nuestros clientes, Albiach Colors se
+				ha consolidado como una empresa seria y responsable, que ha evolucionado en
+				cuanto a sus técnicas y métodos de trabajo se refiere, lo cual nos ha permitido
+				experimentar un importante crecimiento, tanto a nivel profesional como personal.</p>
+				<p>Realizamos todo tipo de trabajos y técnicas, entre las cuales podemos destacar;
+				estucos venecianos, rotulación, veladuras, patinas, empapelados, restauración de
+				cualquier tipo de superficies incluso elaborando manualmente cualquier
+				pigmentación a imitar.
+				</p>	
+			</div>
+			<div data-role="footer" class="logo">
+				
+			</div>
+		</div>
+		<div data-role="page" id="pag3" data-theme="b">
+			<div data-role="header">
+				<a href="#pag1" data-role="button" data-icon="back" data-theme="b" data-transition="none">Volver</a>
+				<h3>Galería.</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<div class="ui-grid-a my-breakpoint">
+					<div class="ui-block-a">
+						<a href="#pag20" class="thumbnail" data-transition="none"><img src="./images/thumb/thumb1.jpg" /></a>
+					</div>
+					<div class="ui-block-b">
+						<a href="#pag21" class="thumbnail" data-transition="none"><img src="./images/thumb/thumb2.jpg" /></a>
+					</div>
+				</div>
+				<div class="ui-grid-a my-breakpoint">
+					<div class="ui-block-a">
+						<a href="#pag22" class="thumbnail" data-transition="none"><img src="./images/thumb/thumb3.jpg" /></a>
+					</div>
+					<div class="ui-block-b">
+						<a href="#pag23" class="thumbnail" data-transition="none"><img src="./images/thumb/thumb4.jpg" /></a>
+					</div>
+				</div>
+				<div class="ui-grid-a my-breakpoint">
+					<div class="ui-block-a">
+						<a href="#pag24" class="thumbnail" data-transition="none"><img src="./images/thumb/thumb5.jpg" /></a>
+					</div>
+					<div class="ui-block-b">
+						<a href="#pag25" class="thumbnail" data-transition="none"><img src="./images/thumb/thumb6.jpg" /></a>
+					</div>
+				</div>
+			</div>
+			<div data-role="footer" class="logo">
+				
+			</div>
+		</div>
+		<div data-role="page" id="pag4" data-theme="b">
+			<div data-role="header">
+				<a href="#pag1" data-role="button" data-icon="back" data-theme="b" data-transition="none">Volver</a>
+				<h3>Presupuesto.</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<p>Este presupuesto es orientativo y queda pendiente de aprobación.</p>
+				<form>
+					<!-- Per a veure-ho en dues columnes, he hagut de treure els fieldcontain -->
+					<div class="ui-grid-a my-breakpoint">
+						<div class="ui-block-a">
+							<label for="salon">Salón-Comedor</label>
+							<select name="salon" id="salon" data-role="slider" data-mini="true">
+								<option value="off">Off</option>
+								<option value="on">On</option>
+							</select>
+						</div>
+						<div class="ui-block-b">
+							<label for="cocina">Cocina</label>
+							<select name="cocina" id="cocina" data-role="slider" data-mini="true">
+								<option value="off">Off</option>
+								<option value="on">On</option>
+							</select>
+						</div>
+					</div>
+					<div data-role="fieldcontain">
+						<label for="hab_p">Habitación principal</label>
+						<select name="hab_p" id="hab_p" data-mini="true">
+							<option value="0">Ninguna</option>
+							<option value="1">Una</option>
+							<option value="2">Dos</option>
+							<option value="3">Tres</option>
+							<option value="4">Cuatro</option>
+						</select>
+					</div>
+					<div data-role="fieldcontain">
+						<label for="hab_s">Habitación secundaria</label>
+						<select name="hab_s" id="hab_s" data-mini="true">
+							<option value="0">Ninguna</option>
+							<option value="1">Una</option>
+							<option value="2">Dos</option>
+							<option value="3">Tres</option>
+							<option value="4">Cuatro</option>
+						</select>
+					</div>
+					<div data-role="fieldcontain">
+						<label for="pasillo">Pasillo</label>
+						<select name="pasillo" id="pasillo" data-mini="true">
+							<option value="0">Ninguno</option>
+							<option value="1">Uno</option>
+							<option value="2">Dos</option>
+						</select>
+					</div>
+					<div data-role="fieldcontain">
+						<label for="escalera">Escalera (Tramos)</label>
+						<select name="pasillo" id="escalera" data-mini="true">
+							<option value="0">Ninguno</option>
+							<option value="1">Uno</option>
+							<option value="2">Dos</option>
+							<option value="3">Tres</option>
+							<option value="4">Cuatro</option>
+							<option value="5">Cinco</option>
+							<option value="6">Seis</option>
+							<option value="7">Siete</option>
+							<option value="8">Ocho</option>
+							<option value="9">Nueve</option>
+						</select>
+					</div>
+					<div data-role="fieldcontain">
+						<label for="aseo">Aseo</label>
+						<select name="aseo" id="aseo" data-mini="true">
+							<option value="0">Ninguno</option>
+							<option value="1">Uno</option>
+							<option value="2">Dos</option>
+							<option value="3">Tres</option>
+							<option value="4">Cuatro</option>
+						</select>
+					</div>
+				</form>
+			</div>
+			<div data-role="footer" class="logo" data-theme="a">
+				<input type="button" id="bCalcular" class="center-text" value="Calcular" data-theme="b">
+			</div>
+		</div>
+		<div data-role="page" id="pag5" data-theme="e">
+			<div data-role="header">
+				<a href="#pag1" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Contacta.</h3>
+			</div>
+			<div data-role="content" data-theme="e">
+				<span class="titol">Datos de contacto:</span>
+				<ul>
+					<li><span>+34 620.984.633</span></li>
+					<li><span>albiachcolors@hotmail.com</span></li>
+					<li><span>albiachcolors@gmail.com</span></li>
+				</ul>
+				<hr>
+				<span class="titol">Opciones de contacto:</span>
+				<!-- botó per cridar per telèfon -->
+				<a data-role="button" href="tel:+34620984633" data-mini="true"><img src="./logos/telefono_32.png"></a>
+			</div>
+			<div data-role="footer" data-theme="e" class="logo">
+				<div data-role="navbar">
+					<ul>
+						<li><a href="https://www.facebook.com/albiach.colors"><img src="./logos/facebook_32.png"></a></li>
+						<li><a href="mailto:albiachcolors@hotmail.com"><img src="./logos/outlook_32.png"></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- Galeria d'imatges -->
+		<div data-role="page" id="pag20" data-theme="b">
+			<div data-role="header">
+				<a href="#pag3" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Imagen</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<img class="vista_imatge" src="./images/full/1.jpg">
+			</div>
+			<div data-role="footer" data-theme="a">
+				<div data-role="controlgroup" data-type="horizontal" class="center-text">
+					<a href="#pag21" data-role="button" data-icon="arrow-r" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+				</div>
+				
+			</div>
+		</div>
+		<div data-role="page" id="pag21" data-theme="b">
+			<div data-role="header">
+				<a href="#pag3" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Imagen</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<img class="vista_imatge" src="./images/full/2.jpg">
+			</div>
+			<div data-role="footer" data-theme="a">
+				<div data-role="controlgroup" data-type="horizontal" class="center-text">
+					<a href="#pag20" data-role="button" data-icon="arrow-l" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+					<a href="#pag22" data-role="button" data-icon="arrow-r" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+				</div>
+				
+			</div>
+		</div>
+		<div data-role="page" id="pag22" data-theme="b">
+			<div data-role="header">
+				<a href="#pag3" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Imagen</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<img class="vista_imatge" src="./images/full/3.jpg">
+			</div>
+			<div data-role="footer" data-theme="a">
+				<div data-role="controlgroup" data-type="horizontal" class="center-text">
+					<a href="#pag21" data-role="button" data-icon="arrow-l" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+					<a href="#pag23" data-role="button" data-icon="arrow-r" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+				</div>
+			</div>
+		</div>
+		<div data-role="page" id="pag23" data-theme="b">
+			<div data-role="header">
+				<a href="#pag3" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Imagen</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<img class="vista_imatge" src="./images/full/4.jpg">
+			</div>
+			<div data-role="footer" data-theme="a">
+				<div data-role="controlgroup" data-type="horizontal" class="center-text">
+					<a href="#pag22" data-role="button" data-icon="arrow-l" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+					<a href="#pag24" data-role="button" data-icon="arrow-r" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+				</div>
+			</div>
+		</div>
+		<div data-role="page" id="pag24" data-theme="b">
+			<div data-role="header">
+				<a href="#pag3" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Imagen</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<img class="vista_imatge" src="./images/full/5.jpg">
+			</div>
+			<div data-role="footer" data-theme="a">
+				<div data-role="controlgroup" data-type="horizontal" class="center-text">
+					<a href="#pag23" data-role="button" data-icon="arrow-l" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+					<a href="#pag25" data-role="button" data-icon="arrow-r" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+				</div>
+			</div>
+		</div>
+		<div data-role="page" id="pag25" data-theme="b">
+			<div data-role="header">
+				<a href="#pag3" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Imagen</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<img class="vista_imatge" src="./images/full/6.jpg">
+			</div>
+			<div data-role="footer" data-theme="a">
+				<div data-role="controlgroup" data-type="horizontal" class="center-text">
+					<a href="#pag24" data-role="button" data-icon="arrow-l" data-iconpos="notext" data-inline="true" data-transition="none"></a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Mostra el pressupost -->
+		<div data-role="page" id="pag6" data-theme="b">
+			<div data-role="header">
+				<a href="#pag4" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Presupuesto</h3>
+			</div>
+			<div data-role="content" data-theme="b">
+				<p>Recordar que este presupuesto es sólo orientativo. <a href="#pag7">Condiciones</a></p>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span>Salon</span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span id="nSalon"></span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pSalon"></span>
+					</div>
+				</div>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span>Cocina</span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span id="nCocina"></span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pCocina"></span>
+					</div>
+				</div>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span>Hab. Principal</span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span id="nHab_p"></span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pHab_p"></span>
+					</div>
+				</div>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span>Hab. Secund.</span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span id="nHab_s"></span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pHab_s"></span>
+					</div>
+				</div>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span>Pasillo</span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span id="nPasillo"></span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pPasillo"></span>
+					</div>
+				</div>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span>Escalera</span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span id="nEscalera"></span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pEscalera"></span>
+					</div>
+				</div>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span>Aseo</span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span id="nAseo"></span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pAseo"></span>
+					</div>
+				</div>
+				<hr>
+				<div class="ui-grid-b my-breakpoint">
+					<div class="ui-block-a">
+						<span></span>
+					</div>
+					<div class="ui-block-b right-text">
+						<span>Total:</span>
+					</div>
+					<div class="ui-block-c right-text">
+						<span id="pTotal"></span>
+					</div>
+				</div>
+			</div>
+			<div data-role="footer" data-theme="e" class="center-text">
+				<br>
+				<input type="button" id="bEnviaPres" class="center-text" value="Envia presupuesto" data-theme="a">
+				<p id="tNota"><span id="nota">Nota:</span> La alteración manual del presupuesto lo invalidará.</p>
+			</div>
+		</div>
+		<!-- Condicions dels pressupost -->
+		<div data-role="page" id="pag7" data-theme="e">
+			<div data-role="header">
+				<a href="#pag6" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+				<h3>Condiciones.</h3>
+			</div>
+			<div data-role="content" data-theme="e">
+				<p>Presupuesto válido sólo para estancias de tamaño estandar [1] incluyendo:</p>
+				<p>Tapado de las superfícies no pintables [3] mediante papel con cinta, rollo de papel del suelo y plástico fino. Masillado y lijado de las pequeñas imperfecciones y posterior aplicación de pintura mate o seda en colores pastel [2] y/o blanco con dos manos de acabado.</p>
+				<p>NOTA: En caso de tener que realizar el movimiento masivo tanto de mobiliario como de objetos de decoración, se facturará a parte[4].</p>
+				<br>
+				<ul>
+					<li>[1] Tamaño estándar:</li>
+					<ul>
+						<li>Habitación Principal (Aprox. 4m*5m).</li>
+						<li>Habitación Secundaria (Aprox. 3,5m*4m).</li>
+						<li>Pasillo (Aprox.1m ancho*6m largo).</li>
+						<li>Cocina (Aprox. 4m*5m).</li>
+						<li>Baño (Aprox. 3m*2,5m).</li>
+						<li>Tamaños distintos de los anteriores, pueden afectar al cálculo del presupuesto.</li>
+					</ul>
+					<li>[2] Todos aquellos que puedan ser preparados en una base BL (blanca).</li>
+					<li>[3] Rodapies, marcos de puertas y ventanas, suelo y mobiliario.</li>
+					<li>[4] Precio de 14€/hora.</li>
+				</ul>
+			</div>
+			<div data-role="footer" data-theme="e" class="logo">
+				<a href="#pag6" data-role="button" data-icon="back" data-theme="e" data-transition="none">Volver</a>
+			</div>
+		</div>
+	</body>
+</html>
